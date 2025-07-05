@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Konfigurátor Domů – TvojeHnizdo.cz</title>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: #2c3e50; color: #fff; padding: 20px; text-align: center; }
+    main { padding: 20px; }
+    label { display: block; margin-top: 10px; }
+    select, input, textarea { width: 200px; padding: 5px; }
+    #summary { margin-top: 20px; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; }
+    button { margin-top: 15px; padding: 10px 20px; margin-right: 10px; }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="Logo.png" alt="Logo TvojeHnízdo.cz" style="height:60px;">
+    <h1>Konfigurátor Vašeho Domu</h1>
+  </header>
+  <main>
+    <form id="configForm">
+      <label>Patra: <input type="number" id="floors" value="2"></label>
+      <label>Rozloha (m²): <input type="number" id="area" value="120"></label>
+      <label>Typ střechy:
+        <select id="roofType">
+          <option value="sedlova">Sedlová</option>
+          <option value="plochá">Plochá</option>
+          <option value="valbová">Valbová</option>
+        </select>
+      </label>
+      <label>Barva střechy: <input type="color" id="roofColor" value="#b72f2f"></label>
+      <label>Materiál zdiva:
+        <select id="wallMaterial">
+          <option value="cihla">Cihla</option>
+          <option value="drevo">Dřevo</option>
+          <option value="panel">Panel</option>
+        </select>
+      </label>
+      <label>Váš e-mail: <input type="email" id="email" required></label>
+
+      <button type="button" onclick="generateSummary()">Vytvořit souhrn</button>
+      <button type="button" onclick="sendEmailWithPDF()">Odeslat nabídku e-mailem (PDF)</button>
+    </form>
+
+    <div id="summary"></div>
+  </main>
+
+  <script>
+    let summaryText = "";
+
+    function generateSummary() {
+      const floors = document.getElementById("floors").value;
+      const area = document.getElementById("area").value;
+      const roof = document.getElementById("roofType").value;
+      const color = document.getElementById("roofColor").value;
+      const wall = document.getElementById("wallMaterial").value;
+      let price = area * floors * 15000;
+
+      summaryText = `Patra: ${floors}\nRozloha: ${area} m²\nStřecha: ${roof}\nBarva střechy: ${color}\nZdivo: ${wall}\nCena: ${price.toLocaleString('cs-CZ')} Kč`;
+
+      document.getElementById("summary").innerHTML = `
+        <h2>Vaše konfigurace</h2>
+        <ul>
+          <li>Patra: ${floors}</li>
+          <li>Rozloha: ${area} m²</li>
+          <li>Typ střechy: ${roof}</li>
+          <li>Barva střechy: ${color}</li>
+          <li>Materiál zdiva: ${wall}</li>
+        </ul>
+        <h3>Odhadovaná cena: ${price.toLocaleString('cs-CZ')} Kč</h3>`;
+    }
+
+    async function sendEmailWithPDF() {
+      const email = document.getElementById("email").value;
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      doc.text("TvojeHnizdo.cz – Nabídka", 10, 10);
+      doc.text("E-mail: " + email, 10, 20);
+      doc.text("Konfigurace:", 10, 30);
+      doc.text(summaryText, 10, 40);
+      const pdfBlob = doc.output("blob");
+
+      const reader = new FileReader();
+      reader.readAsDataURL(pdfBlob);
+      reader.onloadend = function () {
+        const base64data = reader.result.split(',')[1]; // bez prefixu
+
+        emailjs.send("service_gk9erl9", "029780", {
+          email: email,
+          message: "Příloha PDF v e-mailu",
+          attachments: [{
+            name: "nabidka_tvojehnizdo.pdf",
+            data: base64data
+          }]
+        }).then(() => {
+          alert("PDF nabídka byla odeslána na e-mail.");
+        }, err => {
+          console.error(err);
+          alert("Nepodařilo se odeslat e-mail.");
+        });
+      };
+    }
+  </script>
+</body>
+</html>

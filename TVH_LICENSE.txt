@@ -1,0 +1,50 @@
+
+LICENČNÍ PODMÍNKY – TVOJE HNÍZDO
+
+Autorská práva (c) 2024 Tvoje Hnízdo
+
+Tento software a veškeré související soubory, zdrojový kód, vizualizace, grafika a dokumentace 
+jsou chráněny autorským právem a jsou výhradním vlastnictvím značky Tvoje Hnízdo.
+
+❗ Jakékoli:
+- kopírování,
+- ukládání,
+- úpravy,
+- šíření,
+- publikování,
+- nebo komerční využití
+
+jsou výslovně zakázány bez předchozího písemného souhlasu držitele autorských práv.
+
+Software je určen výhradně pro vnitřní použití společnosti Tvoje Hnízdo a jejich smluvních partnerů.
+
+Jakékoli porušení těchto podmínek bude považováno za neoprávněné nakládání s duševním vlastnictvím
+a může být řešeno právní cestou.
+
+SOFTWARE JE POSKYTOVÁN „TAK, JAK JE“, BEZ JAKÉKOLI ZÁRUKY.
+
+
+
+LICENSE TERMS – TVOJE HNÍZDO
+
+Copyright (c) 2024 Tvoje Hnízdo
+
+This software, including all related files, source code, visual materials, graphics, and documentation, 
+is protected by copyright and is the exclusive property of the brand Tvoje Hnízdo.
+
+❗ Any:
+- copying,
+- saving,
+- modifying,
+- distributing,
+- publishing,
+- or commercial use
+
+is strictly prohibited without prior written permission from the copyright holder.
+
+The software is intended solely for internal use by Tvoje Hnízdo and its contractual partners.
+
+Any violation of these terms will be considered unauthorized use of intellectual property 
+and may be subject to legal action.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT ANY WARRANTY OF ANY KIND.

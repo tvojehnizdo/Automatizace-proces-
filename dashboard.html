@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard – TvojeHnizdo.cz</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h2 { margin-bottom: 10px; }
+    .stat { margin: 10px 0; }
+    canvas { max-width: 800px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>📊 Přehled poptávek – TvojeHnizdo.cz</h2>
+  <div class="stat" id="totalCount">Celkový počet poptávek: načítání…</div>
+  <div class="stat" id="avgPrice">Průměrná cena: načítání…</div>
+  <div class="stat" id="mostRoof">Nejčastější typ střechy: načítání…</div>
+  <div class="stat" id="mostWall">Nejčastější materiál zdiva: načítání…</div>
+
+  <canvas id="dailyChart"></canvas>
+
+  <script>
+    const SHEET_API = "https://opensheet.elk.sh/1nz-Fn2LfqZ39FCzXtHh5RYJVYXBEIgQkzMRYcPy69hA/Poptávky";
+
+    fetch(SHEET_API)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("totalCount").textContent = "Celkový počet poptávek: " + data.length;
+
+        // Výpočet průměrné ceny
+        let sum = 0;
+        let roofCount = {};
+        let wallCount = {};
+        let dailyStats = {};
+
+        data.forEach(row => {
+          const price = parseInt((row.Cena || "0").replace(/\D/g, ""));
+          sum += price;
+
+          roofCount[row.Střecha] = (roofCount[row.Střecha] || 0) + 1;
+          wallCount[row.Zdivo] = (wallCount[row.Zdivo] || 0) + 1;
+
+          const date = row.Datum;
+          dailyStats[date] = (dailyStats[date] || 0) + 1;
+        });
+
+        const avg = sum / data.length;
+        document.getElementById("avgPrice").textContent = "Průměrná cena: " + avg.toLocaleString("cs-CZ") + " Kč";
+
+        const mostRoof = Object.entries(roofCount).sort((a,b) => b[1]-a[1])[0][0];
+        const mostWall = Object.entries(wallCount).sort((a,b) => b[1]-a[1])[0][0];
+
+        document.getElementById("mostRoof").textContent = "Nejčastější typ střechy: " + mostRoof;
+        document.getElementById("mostWall").textContent = "Nejčastější materiál zdiva: " + mostWall;
+
+        const labels = Object.keys(dailyStats).sort();
+        const counts = labels.map(label => dailyStats[label]);
+
+        const ctx = document.getElementById('dailyChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Počet poptávek za den',
+              data: counts,
+              backgroundColor: 'rgba(54, 162, 235, 0.6)'
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: { beginAtZero: true }
+            }
+          }
+        });
+      });
+  </script>
+</body>
+</html>

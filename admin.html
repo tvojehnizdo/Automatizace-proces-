@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin – Smlouvy TvojeHnízdo.cz</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f0f0f0; }
+    #loginPanel, #adminPanel { display: none; }
+    #loginPanel.active, #adminPanel.active { display: block; }
+    input[type=password] { padding: 5px; }
+    button { padding: 6px 12px; }
+  </style>
+</head>
+<body>
+
+<h2>Admin přístup – TvojeHnízdo.cz</h2>
+
+<div id="loginPanel" class="active">
+  <p>Zadejte heslo:</p>
+  <input type="password" id="adminPass">
+  <button onclick="checkLogin()">Přihlásit</button>
+  <p id="loginError" style="color:red;"></p>
+</div>
+
+<div id="adminPanel">
+  <h3>Přijaté poptávky</h3>
+  <table id="dataTable">
+    <thead>
+      <tr>
+        <th>Datum</th>
+        <th>E-mail</th>
+        <th>Patra</th>
+        <th>Rozloha</th>
+        <th>Střecha</th>
+        <th>Barva</th>
+        <th>Zdivo</th>
+        <th>Cena</th>
+        <th>Akce</th>
+      </tr>
+    </thead>
+    <tbody id="dataBody"></tbody>
+  </table>
+</div>
+
+<script>
+const SHEET_API = "https://opensheet.elk.sh/1nz-Fn2LfqZ39FCzXtHh5RYJVYXBEIgQkzMRYcPy69hA/Poptávky";
+
+function checkLogin() {
+  const pass = document.getElementById("adminPass").value;
+  if (pass === "admin123") {
+    document.getElementById("loginPanel").classList.remove("active");
+    document.getElementById("adminPanel").classList.add("active");
+    loadData();
+  } else {
+    document.getElementById("loginError").textContent = "Nesprávné heslo.";
+  }
+}
+
+function loadData() {
+  fetch(SHEET_API)
+    .then(res => res.json())
+    .then(data => {
+      const tbody = document.getElementById("dataBody");
+      tbody.innerHTML = "";
+      data.forEach((row, index) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.Datum}</td>
+          <td>${row["E-mail"]}</td>
+          <td>${row.Patra}</td>
+          <td>${row.Rozloha}</td>
+          <td>${row.Střecha}</td>
+          <td>${row.Barva}</td>
+          <td>${row.Zdivo}</td>
+          <td>${row.Cena}</td>
+          <td><button onclick="generateContract(${index})">Smlouva</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      window.sheetData = data;
+    });
+}
+
+function generateContract(index) {
+  const { jsPDF } = window.jspdf;
+  const row = window.sheetData[index];
+  const doc = new jsPDF();
+  const date = new Date().toLocaleDateString("cs-CZ");
+
+  doc.setFontSize(12);
+  doc.text("Smlouva o dílo – TvojeHnizdo.cz", 10, 10);
+  doc.text(`Datum: ${date}`, 10, 20);
+  doc.text(`Zákazník: ${row["E-mail"]}`, 10, 30);
+  doc.text(" ", 10, 35);
+  doc.text("Předmět smlouvy:", 10, 45);
+  doc.text(`Výstavba domu: ${row.Patra} patra, ${row.Rozloha}`, 10, 55);
+  doc.text(`Střecha: ${row.Střecha}, Barva: ${row.Barva}`, 10, 65);
+  doc.text(`Materiál zdiva: ${row.Zdivo}`, 10, 75);
+  doc.text(`Cena díla: ${row.Cena}`, 10, 85);
+  doc.text(" ", 10, 95);
+  doc.text("Podpisy:", 10, 105);
+  doc.text("________________________", 10, 115);
+  doc.text("Zákazník", 10, 120);
+  doc.text("________________________", 110, 115);
+  doc.text("TvojeHnizdo.cz", 110, 120);
+  doc.save("smlouva_tvojehnizdo.pdf");
+}
+</script>
+
+</body>
+</html>
